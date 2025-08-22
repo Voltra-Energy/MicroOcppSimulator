@@ -1,3 +1,18 @@
+### v201 using docker compose (Make sure to run on port 8000)
+```bash
+docker-compose up -d
+# this will populate the bind mount for `mo_store`
+docker-compose down
+```
+go to the file `/mo_store/simulator.jsn` and change `OcppVersion` to `2.0.1`
+```bash
+docker compose up -d
+```
+`v201` should be running now. To configure the credentials for the websocket connection go to the `/mo_store/ws-conn-v201.jsn` and change the relevant fields
+
+
+
+
 # <img src="https://github.com/matth-x/MicroOcpp/assets/63792403/1c49d1ad-7afc-48d3-a54e-9aef2d4886db" alt="Icon" height="24"> &nbsp; MicroOcppSimulator
 
 [![Build (Ubuntu)](https://github.com/matth-x/MicroOcppSimulator/workflows/Ubuntu/badge.svg)]((https://github.com/matth-x/MicroOcppSimulator/actions))
@@ -117,6 +132,7 @@ The compiler toolchain should emit the WebAssembly binary and a JavaScript wrapp
 Now, the GUI can be developed or built as described in the [webapp repository](https://github.com/agruenb/arduino-ocpp-dashboard).
 
 After building the GUI, the emited files contain the full Simulator functionality. To run the Simualtor, start an HTTP file server in the dist folder and access it with your browser.
+
 
 ## License
 
