@@ -1,4 +1,5 @@
 ### v201 using docker compose (Make sure to run on port 8000)
+```git clone --recurse-submodules https://github.com/Voltra-Energy/MicroOcppSimulator```
 ```bash
 docker-compose up -d
 # this will populate the bind mount for `mo_store`
