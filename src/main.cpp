@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <signal.h>
+#include <cstdlib>
 
 #include <mbedtls/platform.h>
 
@@ -161,14 +162,24 @@ int main() {
     }
     JsonObject api_settings = api_settings_doc->as<JsonObject>();
 
-    const char *api_url = api_settings["url"] | MO_SIM_ENDPOINT_URL;
+    // Environment variables override JSON file settings
+    const char *api_url = std::getenv("MO_API_URL");
+    if (!api_url) {
+        api_url = api_settings["url"] | MO_SIM_ENDPOINT_URL;
+    }
+
+    const char *api_user_env = std::getenv("MO_API_USER");
+    const char *api_pass_env = std::getenv("MO_API_PASS");
+    const char *backend_url_env = std::getenv("MO_BACKEND_URL");
+    const char *charge_box_id_env = std::getenv("MO_CHARGE_BOX_ID");
+    const char *auth_key_env = std::getenv("MO_AUTH_KEY");
 
     mg_http_listen(&mgr, api_url, http_serve, (void*)api_url);     // Create listening connection
 
     osock = new MicroOcpp::MOcppMongooseClient(&mgr,
-        "ws://echo.websocket.events",
-        "charger-01",
-        "",
+        backend_url_env ? backend_url_env : "ws://echo.websocket.events",
+        charge_box_id_env ? charge_box_id_env : "charger-01",
+        auth_key_env ? auth_key_env : "",
         "",
         filesystem,
         g_isOcpp201 ?
@@ -176,7 +187,10 @@ int main() {
             MicroOcpp::ProtocolVersion{1,6}
         );
 
-    server_initialize(osock, api_cert.buf ? api_cert.buf : "", api_key.buf ? api_key.buf : "", api_settings["user"] | "", api_settings["pass"] | "");
+    const char *api_user = api_user_env ? api_user_env : (api_settings["user"] | "");
+    const char *api_pass = api_pass_env ? api_pass_env : (api_settings["pass"] | "");
+    
+    server_initialize(osock, api_cert.buf ? api_cert.buf : "", api_key.buf ? api_key.buf : "", api_user, api_pass);
     app_setup(*osock, filesystem);
 
     setOnResetExecute([] (bool isHard) {
